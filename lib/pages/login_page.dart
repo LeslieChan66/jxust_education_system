@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -54,7 +56,17 @@ class _LoginPageState extends State<LoginPage> {
                 height: 200,
                 margin: EdgeInsets.only(top: 30.0),
                 width: MediaQuery.of(context).size.width * 0.8,
-                child: _buildLoginForm())
+                child: _buildLoginForm()),
+            FutureBuilder(
+              future: _buildCodeImage(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Image.memory(Uint8List.fromList(snapshot.data.data));
+                } else {
+                  return Text('errot');
+                }
+              },
+            )
           ],
         ),
       ),
@@ -135,5 +147,12 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ));
+  }
+
+  _buildCodeImage() async {
+    Response<List<int>> rs = await Dio().get<List<int>>('https://jw.webvpn.jxust.edu.cn/verifycode.servlet',
+      options: Options(responseType: ResponseType.bytes), //设置接收类型为bytes
+    );
+    return rs;
   }
 }
