@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'dart:async';
 
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+
 /*
  * 封装 restful 请求
  *
@@ -19,6 +22,7 @@ class HttpUtils {
   static const int CONNECT_TIMEOUT = 10000;
   static const int RECEIVE_TIMEOUT = 3000;
 
+  static const String API_PREFIX = 'https://jw.webvpn.jxust.edu.cn';
   /// http request methods
   static const String GET = 'get';
   static const String POST = 'post';
@@ -26,20 +30,13 @@ class HttpUtils {
   static const String PATCH = 'patch';
   static const String DELETE = 'delete';
 
+  static final CookieJar cookieJar = CookieJar();
+
   /// request method
   static Future request(String url, {data, method}) async {
     data = data ?? {};
     method = method ?? 'GET';
 
-    /// restful 请求处理
-    /// /gysw/search/hist/:user_id        user_id=27
-    /// 最终生成 url 为     /gysw/search/hist/27
-    data.forEach((key, value) {
-      if (url.indexOf(key) != -1) {
-        print(1);
-        url = url.replaceAll(':$key', value.toString());
-      }
-    });
 
     Dio dio = createInstance();
     var result;
@@ -47,16 +44,20 @@ class HttpUtils {
     try {
       Response response = await dio.request(url,
           data: data, options: new Options(method: method));
-
-      result = response.data;
+      result = response;
+      print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
     } on DioError catch (e) {
       /// 打印请求失败相关信息
       print('请求出错：' + e.toString());
     }
-
     return result;
   }
-
+  static Future getCodeImage(String url) async {
+    Dio dio = createInstance();
+    Response<List<int>> res = await dio.get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
+    print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
+    return res;
+  }
   /// 创建 dio 实例对象
   static Dio createInstance() {
     if (dio == null) {
@@ -64,16 +65,19 @@ class HttpUtils {
       BaseOptions options = new BaseOptions(
         connectTimeout: CONNECT_TIMEOUT,
         receiveTimeout: RECEIVE_TIMEOUT,
+        baseUrl: API_PREFIX,
+        headers: {
+//          "Connection": "keep-alive",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Origin": "https://jw.webvpn.jxust.edu.cn"
+        }
       );
-
       dio = new Dio(options);
+      dio.interceptors.add(CookieManager(cookieJar));
     }
 
     return dio;
   }
 
-  /// 清空 dio 对象
-  static clear() {
-    dio = null;
-  }
+
 }
