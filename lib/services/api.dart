@@ -1,19 +1,11 @@
+import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
 import 'dart:async';
 
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/cupertino.dart';
 
-/*
- * 封装 restful 请求
- *
- * GET、POST、DELETE、PATCH
- * 主要作用为统一处理相关事务：
- *  - 统一处理请求前缀；
- *  - 统一打印请求信息；
- *  - 统一打印响应信息；
- *  - 统一打印报错信息；
- */
 class HttpUtils {
   /// global dio object
   static Dio dio;
@@ -32,32 +24,6 @@ class HttpUtils {
 
   static final CookieJar cookieJar = CookieJar();
 
-  /// request method
-  static Future request(String url, {data, method}) async {
-    data = data ?? {};
-    method = method ?? 'GET';
-
-
-    Dio dio = createInstance();
-    var result;
-
-    try {
-      Response response = await dio.request(url,
-          data: data, options: new Options(method: method));
-      result = response;
-      print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
-    } on DioError catch (e) {
-      /// 打印请求失败相关信息
-      print('请求出错：' + e.toString());
-    }
-    return result;
-  }
-  static Future getCodeImage(String url) async {
-    Dio dio = createInstance();
-    Response<List<int>> res = await dio.get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
-    print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
-    return res;
-  }
   /// 创建 dio 实例对象
   static Dio createInstance() {
     if (dio == null) {
@@ -66,18 +32,55 @@ class HttpUtils {
         connectTimeout: CONNECT_TIMEOUT,
         receiveTimeout: RECEIVE_TIMEOUT,
         baseUrl: API_PREFIX,
-        headers: {
-//          "Connection": "keep-alive",
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Origin": "https://jw.webvpn.jxust.edu.cn"
-        }
       );
       dio = new Dio(options);
       dio.interceptors.add(CookieManager(cookieJar));
     }
-
     return dio;
   }
 
+  static Future getCodeImage(String url) async {
+    Dio dio = createInstance();
+    Response<List<int>> res = await dio.get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
+    print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
+    return res;
+  }
 
+  static Future login(String username, String password, String verify_code) async {
+    Dio dio = createInstance();
+    Response response = await dio.post('/Logon.do?method=logon&flag=sess');
+    String res = response.data;
+    var scode = res.split("#")[0];
+    var sxh = res.split("#")[1];
+    var code=username+"%%%"+password;
+    var encoded="";
+    for(var i=0;i<code.length;i++){
+      if(i<20){
+        encoded=encoded+code.substring(i,i+1)+scode.substring(0,int.parse(sxh.substring(i,i+1)));
+        scode = scode.substring(int.parse(sxh.substring(i,i+1)),scode.length);
+      }else{
+        encoded=encoded+code.substring(i,code.length);
+        i=code.length;
+      }
+    }
+    Map loginForm = {
+      "userAccount": username,
+      "userPassword": password,
+      "RANDOMCODE": verify_code,
+      "encoded": encoded
+    };
+    dio.options.contentType="application/x-www-form-urlencoded";
+    Response response1 = await dio.post('/Logon.do?method=logon', data: loginForm, options: Options(validateStatus: (status) {
+      return status < 500;
+    }));
+    var redirect = response1.headers['location'][0];
+    await dio.get(redirect);
+    await getCodeImage('/verifycode.servlet');
+    var q = await dio.get(redirect);
+    var mainContent = await dio.get('/jsxsd/framework/xsMain_new.jsp?t1=1');
+    return mainContent.data;
+//    return q.data;
+//    var document = parse(q.data);
+//    print(document.outerHtml);
+  }
 }

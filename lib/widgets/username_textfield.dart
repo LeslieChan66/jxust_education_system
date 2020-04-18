@@ -1,46 +1,33 @@
 import 'package:flutter/material.dart';
 
-class PasswordTextField extends StatefulWidget {
+class UsernameTextField extends StatefulWidget {
   TextEditingController controller;
   @override
-  _PasswordTextFieldState createState() => _PasswordTextFieldState();
+  _UsernameTextFieldState createState() => _UsernameTextFieldState();
 
-  PasswordTextField(this.controller);
+  UsernameTextField(this.controller);
 }
 
-class _PasswordTextFieldState extends State<PasswordTextField> {
-  bool passwordVisible;
+class _UsernameTextFieldState extends State<UsernameTextField> {
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    passwordVisible = false;
   }
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      keyboardType: TextInputType.visiblePassword,
+      keyboardType: TextInputType.number,
       controller: widget.controller,
       style: TextStyle(color: Color(0xFFAFB7BA)),
       decoration: InputDecoration(
-          hintText: '请输入密码',
+          hintText: '请输入用户名',
           hintStyle: TextStyle(color: Color(0xFFAFB7BA)),
           contentPadding: EdgeInsets.all(10.0),
           prefixIcon: Icon(
-            Icons.lock_outline,
+            Icons.person,
             color: Color(0xFFAFB7BA),
-          ),
-          suffixIcon: GestureDetector(
-            child: !passwordVisible
-                ? Icon(Icons.visibility, color: Color(0xFFAFB7BA))
-                : Icon(Icons.visibility_off,
-                color: Color(0xFFAFB7BA)),
-            onTap: () {
-              setState(() {
-                passwordVisible = !passwordVisible;
-              });
-            },
           ),
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Color(0xFFAFB7BA)),
@@ -48,7 +35,9 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           )),
-      obscureText: !passwordVisible,
+      validator: (v) {
+        return v.trim().length == 10 ? '' : '用户名为十位数学号';
+      },
     );
   }
 }

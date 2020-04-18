@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/pages/login_page.dart';
 
+import 'configs/config.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -9,6 +11,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      theme: ThemeData(
+        primaryColor: Configs.primaryColor,
+      ),
       home: LoginPage(),
     );
   }
