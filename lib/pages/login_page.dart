@@ -3,22 +3,42 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:jxust_education_system/utils/login.dart';
 import 'package:jxust_education_system/widgets/password_textfield.dart';
+import 'package:jxust_education_system/widgets/show_loading.dart';
+import 'package:jxust_education_system/widgets/username_textfield.dart';
 import '../services/api.dart';
 import '../services/api.dart';
+import 'home_page.dart';
 
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
-
-
-class LoginPage extends StatelessWidget {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _unameController = new TextEditingController();
   final TextEditingController _pwdController = new TextEditingController();
   final TextEditingController _verifiedController = new TextEditingController();
+  GlobalKey _formKey = new GlobalKey<FormState>();
+  List<int> imageBytes = new List<int>();
+  Image verificationCodeImage;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('login page init');
+    _buildCodeImage().then((res) {
+      setState(() {
+        imageBytes = res.data;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print('11');
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -65,31 +85,12 @@ class LoginPage extends StatelessWidget {
     return Theme(
         data: new ThemeData(primaryColor: Colors.blue, hintColor: Colors.white),
         child: Form(
+          key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               // 用户名
-              TextFormField(
-                controller: _unameController,
-                style: TextStyle(color: Color(0xFFAFB7BA)),
-                decoration: InputDecoration(
-                    hintText: '请输入用户名',
-                    hintStyle: TextStyle(color: Color(0xFFAFB7BA)),
-                    contentPadding: EdgeInsets.all(10.0),
-                    prefixIcon: Icon(
-                      Icons.person,
-                      color: Color(0xFFAFB7BA),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFAFB7BA)),
-                        borderRadius: BorderRadius.circular(15.0)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    )),
-                validator: (v) {
-                  return v.trim().length == 10 ? '' : '用户名为十位数学号';
-                },
-              ),
+              UsernameTextField(_unameController),
               // 密码
               PasswordTextField(_pwdController),
               // 验证码
@@ -97,7 +98,7 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 180,
                     child: TextFormField(
                       controller: _verifiedController,
                       style: TextStyle(color: Color(0xFFAFB7BA)),
@@ -117,15 +118,11 @@ class LoginPage extends StatelessWidget {
                           )),
                     ),
                   ),
-                  FutureBuilder(
-                    future: _buildCodeImage(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Image.memory(Uint8List.fromList(snapshot.data.data));
-                      } else {
-                        return Text('验证码加载失败');
-                      }
-                    },
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.8 - 200,
+                    child: imageBytes.length == 0
+                        ? Text('图片加载中')
+                        : Image.memory(Uint8List.fromList(imageBytes)),
                   )
                 ],
               ),
@@ -136,11 +133,20 @@ class LoginPage extends StatelessWidget {
                     child: FlatButton(
                       padding: EdgeInsets.symmetric(vertical: 15.0),
                       color: Color(0xFF009A9A),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                      child: Text('登录', style: TextStyle(color: Colors.white, fontSize: 18.0),),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0)),
+                      child: Text(
+                        '登录',
+                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      ),
                       onPressed: () async {
-                        var form = await preLogin(_unameController.text, _pwdController.text, _verifiedController.text);
-                        login(form);
+                        showLoading(context, "加载中");
+                        var res = await HttpUtils.login(_unameController.text,
+                            _pwdController.text, _verifiedController.text);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) {
+                          return HomePage(res);
+                        }), (route) => false);
                       },
                     ),
                   )
@@ -152,9 +158,8 @@ class LoginPage extends StatelessWidget {
   }
 
   _buildCodeImage() async {
-    await HttpUtils.request('');
-    Response<List<int>> rs = await HttpUtils.getCodeImage('/verifycode.servlet'); //设置接收类型为byte
+    Response<List<int>> rs =
+        await HttpUtils.getCodeImage('/verifycode.servlet'); //设置接收类型为byte
     return rs;
   }
 }
-
