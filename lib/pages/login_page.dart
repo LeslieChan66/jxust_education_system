@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:dio/dio.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/widgets/password_textfield.dart';
@@ -117,11 +118,19 @@ class _LoginPageState extends State<LoginPage> {
                           )),
                     ),
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.8 - 200,
-                    child: imageBytes.length == 0
-                        ? Text('图片加载中')
-                        : Image.memory(Uint8List.fromList(imageBytes)),
+                  GestureDetector(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8 - 200,
+                      child: imageBytes.length == 0
+                          ? Text('图片加载中')
+                          : Image.memory(Uint8List.fromList(imageBytes)),
+                    ),
+                    onTap: () async {
+                      var res = await _buildCodeImage();
+                      setState(() {
+                        imageBytes = res.data;
+                      });
+                    },
                   )
                 ],
               ),
@@ -140,12 +149,31 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       onPressed: () async {
                         showLoading(context, "登录中");
-                        var res = await HttpUtils.login(_unameController.text,
-                            _pwdController.text, _verifiedController.text);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (context) {
-                          return HomePage(res);
-                        }), (route) => false);
+                        try {
+                          var userInfo = await HttpUtils.login(_unameController.text,
+                              _pwdController.text, _verifiedController.text);
+                          var table = await HttpUtils.getCourseTable();
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (context) {
+                                return HomePage(userInfo, table);
+                              }), (route) => false);
+                        } catch (e) {
+                          Navigator.of(context).pop();
+
+                          Flushbar(
+                            margin: EdgeInsets.all(8),
+                            borderRadius: 8,
+                            message: "登陆失败，请检查你的用户名和密码是否正确",
+                            flushbarPosition: FlushbarPosition.TOP,
+                            icon: Icon(
+                              Icons.warning,
+                              size: 28.0,
+                              color: Colors.red,
+                            ),
+                            duration: Duration(seconds: 3),
+                            leftBarIndicatorColor: Colors.red,
+                          )..show(context);
+                        }
                       },
                     ),
                   )

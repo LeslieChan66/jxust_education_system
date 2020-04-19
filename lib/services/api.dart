@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
 import 'dart:async';
@@ -5,6 +7,7 @@ import 'dart:async';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:jxust_education_system/configs/config.dart';
 
 class HttpUtils {
   /// global dio object
@@ -41,6 +44,8 @@ class HttpUtils {
 
   static Future getCodeImage(String url) async {
     Dio dio = createInstance();
+    List<Cookie> cookies = [];
+    cookieJar.saveFromResponse(Uri.parse(API_PREFIX), cookies);
     Response<List<int>> res = await dio.get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
     print(cookieJar.loadForRequest(Uri.parse(API_PREFIX)));
     return res;
@@ -82,5 +87,24 @@ class HttpUtils {
 //    return q.data;
 //    var document = parse(q.data);
 //    print(document.outerHtml);
+  }
+  
+  static Future getCourseTable({list}) async {
+    Dio dio = createInstance();
+    var res;
+    if (list == null) {
+      res = await dio.get('/jsxsd/xskb/xskb_list.do');
+    } else {
+      print(Configs.weekList[list[1]]);
+      print(Configs.semesterList[list[0]]);
+      Map data = {
+        'zc': list[1],
+        'xnxq01id': Configs.semesterList[list[0]],
+        'sfFD': 1
+      };
+      dio.options.contentType="application/x-www-form-urlencoded";
+      res = await dio.post('/jsxsd/xskb/xskb_list.do', data: data);
+    }
+    return res.data;
   }
 }

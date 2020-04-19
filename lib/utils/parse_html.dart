@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 
@@ -17,4 +18,13 @@ Map parseUserInfo(Document document) {
     "classname": classname
   };
   return userInfo;
+}
+
+parseCourseTable(Document document) {
+  var tds = document.querySelectorAll('td');
+  List courseList = new List();
+  for (int i = 0; i < 35; i++) {
+    courseList.add(tds[i].querySelector('.kbcontent').text);
+  }
+  return courseList;
 }
