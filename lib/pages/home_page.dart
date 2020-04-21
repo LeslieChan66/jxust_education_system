@@ -30,20 +30,39 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     AppBar _appBar = new AppBar(
-      title: Text('课程表'),
+      title: GestureDetector(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+
+          children: <Widget>[
+            Icon(Icons.calendar_today),
+            Text('第五周')
+          ],
+        ),
+        onTap: () async {
+          List list = await _showDatePicker(context);
+          if (list != null) {
+            var res = await HttpUtils.getCourseTable(list: list);
+            if (res == 500) {
+
+            } else {
+            setState(() {
+              courseTableDoc = parse(res);
+            });
+          }}
+        },
+      ),
       centerTitle: true,
       actions: <Widget>[
-        new IconButton(
-            icon: Icon(Icons.calendar_today),
-            onPressed: () async {
-              List list = await _showDatePicker(context);
-              if (list != null) {
-                var res = await HttpUtils.getCourseTable(list: list);
-                setState(() {
-                  courseTableDoc = parse(res);
-                });
-              }
-            })
+        new PopupMenuButton(
+          itemBuilder: (context) {
+            return <PopupMenuEntry<String>>[
+              PopupMenuItem(
+                child: Text('保存课表'),
+              )
+            ];
+          },
+        ),
       ],
     );
     return Scaffold(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/configs/config.dart';
+import 'package:jxust_education_system/services/api.dart';
 class MyDrawer extends StatefulWidget {
   MyDrawer(this.userInfo);
   final Map userInfo;
@@ -62,10 +63,15 @@ class _MyDrawerState extends State<MyDrawer> {
                 Expanded(
                   child: ListView(
                     children: <Widget>[
-                      ListTile(leading: Icon(Icons.score), title: Text('成绩查询')),
+                      ListTile(leading: Icon(Icons.score), title: Text('成绩查询'), onTap: () {
+                        _gotoGradePage();
+                      },),
                       ListTile(leading: Icon(Icons.developer_board), title: Text('培养方案')),
                       ListTile(leading: Icon(Icons.library_books), title: Text('等级考试')),
                       ListTile(leading: Icon(Icons.comment), title: Text('一键评教')),
+                      ListTile(leading: Icon(Icons.exit_to_app), title: Text('退出登录'), onTap: () {
+                        _logout();
+                      },)
                     ],
                   ),
                 )
@@ -74,6 +80,15 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
         )
     );
+  }
+
+  void _logout() {
+    HttpUtils.logout();
+    Navigator.pushNamed(context, 'login_page');
+  }
+
+  void _gotoGradePage() {
+    Navigator.pushNamed(context, 'query_grade_page');
   }
 }
 

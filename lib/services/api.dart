@@ -91,7 +91,7 @@ class HttpUtils {
   
   static Future getCourseTable({list}) async {
     Dio dio = createInstance();
-    var res;
+    Response res;
     if (list == null) {
       res = await dio.get('/jsxsd/xskb/xskb_list.do');
     } else {
@@ -105,6 +105,14 @@ class HttpUtils {
       dio.options.contentType="application/x-www-form-urlencoded";
       res = await dio.post('/jsxsd/xskb/xskb_list.do', data: data);
     }
+    if (res.statusCode != 200) {
+      return 500;
+    }
     return res.data;
+  }
+
+  static logout() {
+    List<Cookie> cookies = [];
+    cookieJar.saveFromResponse(Uri.parse(API_PREFIX), cookies);
   }
 }

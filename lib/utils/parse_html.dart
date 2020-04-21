@@ -23,8 +23,15 @@ Map parseUserInfo(Document document) {
 parseCourseTable(Document document) {
   var tds = document.querySelectorAll('td');
   List courseList = new List();
-  for (int i = 0; i < 35; i++) {
-    courseList.add(tds[i].querySelector('.kbcontent').text);
+  try {
+    for (int i = 0; i < 35; i++) {
+      courseList.add(tds[i].querySelector('.kbcontent').text);
+    }
+  } catch(e) {
+    print(e);
+    for (int i = 0; i < 35; i++) {
+      courseList.add('');
+    }
   }
   return courseList;
 }
