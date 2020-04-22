@@ -170,7 +170,7 @@ class _CourseTableState extends State<CourseTable> {
               children: courseList.map((item) {
                 var courseName;
                 var place;
-                if (item.length != 1) {
+                if (item != null && item.length > 3) {
                   courseName = item.split(new RegExp(r"[1-9]"))[0];
                   place = (item.split(']')[1]).split('(')[0];
                 }

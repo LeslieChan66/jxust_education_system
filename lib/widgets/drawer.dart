@@ -26,7 +26,8 @@ class _MyDrawerState extends State<MyDrawer> {
                   height: 280,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                      color: Configs.primaryColor,
+//                      image: DecorationImage(image: AssetImage('assets/images/bg.jpg'), fit: BoxFit.cover)
+                  color: Color(0xfffc5249)
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

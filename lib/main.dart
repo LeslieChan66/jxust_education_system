@@ -1,11 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jxust_education_system/pages/home_page.dart';
 import 'package:jxust_education_system/pages/login_page.dart';
 import 'package:jxust_education_system/pages/query_grade_page.dart';
 
 import 'configs/config.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+  if (Platform.isAndroid) {
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent
+    );
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  }
+}
+
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -14,7 +26,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primaryColor: Configs.primaryColor,
+        primaryColor: Color(0xffffffff),
+        brightness: Brightness.light
       ),
       routes: {
         'login_page': (context) => LoginPage(),
