@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:jxust_education_system/model/grade.dart';
 
 Map parseUserInfo(Document document) {
   var userDocument = document.querySelector('.middletopttxlr').text;
@@ -36,4 +37,21 @@ List parseCourseTable(Document document) {
     print(e);
   }
   return courseList;
+}
+
+parseGradeTable(Document document) {
+  var trs = document.querySelectorAll('tr');
+  List<Grade> gradeList = new List<Grade>();
+  for(int i = 1; i < trs.length; i++) {
+    var tds = trs[i].querySelectorAll('td');
+    var date = tds[1].text;
+    var courseName = tds[3].text;
+    var score = double.parse(tds[5].text);
+    var credit = double.parse(tds[7].text);
+    var testProperty = tds[12].text;
+    var courseProperty = tds[14].text;
+    Grade grade = Grade(courseProperty: courseProperty, courseName: courseName, date: date, score: score, testProperty: testProperty, credit: credit );
+    gradeList.add(grade);
+  }
+  return gradeList;
 }

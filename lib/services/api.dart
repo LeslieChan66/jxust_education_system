@@ -8,6 +8,8 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:jxust_education_system/configs/config.dart';
+import 'package:jxust_education_system/model/grade.dart';
+import 'package:jxust_education_system/utils/parse_html.dart';
 
 class HttpUtils {
   /// global dio object
@@ -109,6 +111,20 @@ class HttpUtils {
       return 500;
     }
     return res.data;
+  }
+
+  static getGradeTable(Map map) async {
+    Dio dio = createInstance();
+    Response res;
+    dio.options.contentType="application/x-www-form-urlencoded";
+    try {
+      res = await dio.post('/jsxsd/kscj/cjcx_list', data: map);
+    } catch (e) {
+      print(e);
+      return 500;
+    }
+    List<Grade> gradeList =  parseGradeTable(parse(res.data));
+    return gradeList;
   }
 
   static logout() {
