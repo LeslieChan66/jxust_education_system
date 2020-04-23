@@ -36,13 +36,13 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('11');
+    print('login page build');
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: Configs.primaryColor,
+        decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/login_bg5.jpg',), fit: BoxFit.cover,)),
         child: Column(
           children: <Widget>[
             Container(

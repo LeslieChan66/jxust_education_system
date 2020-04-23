@@ -45,7 +45,7 @@ class _QueryGradePageState extends State<QueryGradePage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Text('2019-2020-2', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),),
+                    Text('全部', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),),
                     Icon(Icons.arrow_drop_down)
                   ],
                 ),

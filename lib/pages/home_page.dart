@@ -7,6 +7,7 @@ import 'package:jxust_education_system/services/api.dart';
 import 'package:jxust_education_system/utils/parse_html.dart';
 import 'package:jxust_education_system/widgets/course_table.dart';
 import 'package:jxust_education_system/widgets/drawer.dart';
+import 'package:jxust_education_system/widgets/show_loading.dart';
 
 class HomePage extends StatefulWidget {
   final String userInfoData;
@@ -19,23 +20,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Dom.Document userInfoDoc;
   Dom.Document courseTableDoc;
+  String weekNo;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     userInfoDoc = parse(widget.userInfoData);
     courseTableDoc = parse(widget.courseTableData);
+    weekNo = parseWeekNo(userInfoDoc);
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(courseTableDoc.toString());
     AppBar _appBar = new AppBar(
       brightness: Brightness.light,
       title: GestureDetector(
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[Icon(Icons.calendar_today), Text('第五周')],
+          children: <Widget>[Icon(Icons.calendar_today), Text(weekNo)],
         ),
         onTap: () async {
           List list = await _showDatePicker(context);
@@ -85,6 +87,7 @@ class _HomePageState extends State<HomePage> {
                   });
             } else {
               setState(() {
+                weekNo = Configs.weekList[list[1]];
                 courseTableDoc = parse(res);
               });
             }
@@ -98,6 +101,9 @@ class _HomePageState extends State<HomePage> {
             return <PopupMenuEntry<String>>[
               PopupMenuItem(
                 child: Text('保存课表'),
+              ),
+              PopupMenuItem(
+                child: Text('换个颜色'),
               )
             ];
           },

@@ -20,7 +20,12 @@ Map parseUserInfo(Document document) {
   return userInfo;
 }
 
-parseCourseTable(Document document) {
+String parseWeekNo(Document document) {
+  var index = document.querySelector('#li_showWeek').querySelector('span').text;
+  return index;
+}
+
+List parseCourseTable(Document document) {
   var tds = document.querySelectorAll('td');
   List courseList = new List(35);
   try {

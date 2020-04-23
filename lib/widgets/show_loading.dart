@@ -12,13 +12,14 @@ showLoading(BuildContext context, String message) {
           width: 250,
           height: 250,
           child: AlertDialog(
+            backgroundColor: Colors.black87,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                SpinKitCircle(color: Colors.blue, ),
+                SpinKitCircle(color: Colors.white, ),
                 Padding(
                   padding: const EdgeInsets.only(top: 26.0),
-                  child: Text(message, style: TextStyle(fontFamily: 'ArtFont'),),
+                  child: Text(message, style: TextStyle(fontFamily: 'ArtFont', color: Colors.white),),
                 )
               ],
             ),
