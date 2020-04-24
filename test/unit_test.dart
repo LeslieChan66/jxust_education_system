@@ -4,8 +4,17 @@ import 'package:jxust_education_system/services/api.dart';
 
 
 void main() {
-  test('test', () async  {
-    Response res = await HttpUtils.getCourseTable();
-    print(res.headers);
-  });
+  List list = [1,2];
+  var res = getList(list);
+  print(res);
+}
+
+getList(list) {
+  var a;
+  try {
+    a = list[3];
+  } catch (e) {
+    return 200;
+  }
+  return a;
 }

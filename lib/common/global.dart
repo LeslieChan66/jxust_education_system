@@ -20,6 +20,11 @@ class Global {
     profile.password = profile.password ?? '';
   }
 
+  static setUserNameAndPwd(String username, String password) {
+    profile.username = username;
+    profile.password = password;
+    saveProfile();
+  }
 
 
   // 持久化

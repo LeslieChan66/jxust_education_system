@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/model/grade.dart';
+import 'package:jxust_education_system/pages/analysis_page.dart';
 import 'package:jxust_education_system/services/api.dart';
 
 class QueryGradePage extends StatefulWidget {
@@ -21,6 +22,18 @@ class _QueryGradePageState extends State<QueryGradePage> {
     'kcxz': '',
   };
   int semesterIndex = 0;
+  var gradeList;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    HttpUtils.getGradeTable(map).then((res) {
+      setState(() {
+        gradeList = res;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print('grade page build');
@@ -74,112 +87,72 @@ class _QueryGradePageState extends State<QueryGradePage> {
                     ),
                     onTap: () async {
                       int index = await _showDatePicker(context);
-                      print(index);
+                      setState(() {
+                        gradeList = null;
+                      });
+                      if (index == 0) {
+                        map = {
+                          // 显示方式
+                          'xsfs': 'all',
+                          // 开课时间
+                          'kksj': '',
+                          // 课程名称
+                          'kcmc': '',
+                          // 课程性质
+                          'kcxz': '',
+                        };
+                      } else {
+                        map = {
+                          // 显示方式
+                          'xsfs': 'all',
+                          // 开课时间
+                          'kksj': Configs.semesterGradeList[index],
+                          // 课程名称
+                          'kcmc': '',
+                          // 课程性质
+                          'kcxz': '',
+                        };
+                      }
+                      var res = await HttpUtils.getGradeTable(map);
                       setState(() {
                         semesterIndex = index;
-                        if (index == 0) {
-                          map = {
-                            // 显示方式
-                            'xsfs': 'all',
-                            // 开课时间
-                            'kksj': '',
-                            // 课程名称
-                            'kcmc': '',
-                            // 课程性质
-                            'kcxz': '',
-                          };
-                        } else {
-                          map = {
-                            // 显示方式
-                            'xsfs': 'all',
-                            // 开课时间
-                            'kksj': Configs.semesterGradeList[index],
-                            // 课程名称
-                            'kcmc': '',
-                            // 课程性质
-                            'kcxz': '',
-                          };
-                        }
+                        gradeList = res;
                       });
                     },
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(
-                        Icons.insert_chart,
-                        color: Colors.blue,
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 5.0),
-                        child: Text(
-                          '综合统计',
-                          style: TextStyle(
-                              color: Colors.blue,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600),
+                  GestureDetector(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(
+                          Icons.insert_chart,
+                          color: Colors.blue,
                         ),
-                      )
-                    ],
+                        Container(
+                          margin: EdgeInsets.only(left: 5.0),
+                          child: Text(
+                            '综合统计',
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        )
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (context) => AnalysisPage(gradeList: gradeList,)
+                        )
+                      );
+                    },
                   )
                 ],
               ),
             )),
-        FutureBuilder(
-          future: HttpUtils.getGradeTable(map),
-          builder: (context, snapshot) {
-            print('future build');
-            if (snapshot.hasData) {
-              List<DataRow> rows = new List<DataRow>();
-              List<Grade> items = snapshot.data;
-              for (int i = 0; i < snapshot.data.length; i++) {
-                var row = DataRow(cells: [
-                  DataCell(Text(items[i].courseName.length < 15
-                      ? items[i].courseName
-                      : items[i].courseName.substring(0, 14))),
-//                  DataCell(Text(items[i].date)),
-                  DataCell(Text(items[i].score.toString())),
-                  DataCell(Text(items[i].credit.toString())),
-//                  DataCell(Text(items[i].testProperty)),
-//                  DataCell(Text(items[i].courseProperty)),
-                ]);
-                rows.add(row);
-              }
-              return Positioned(
-                top: MediaQuery.of(context).size.width * 146 / 344 + 50,
-                child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.only(left: 20.0),
-                    height: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).size.width * 146 / 344 + 165),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        horizontalMargin: 0.0,
-                        columnSpacing: 0.0,
-                        columns: [
-                          DataColumn(label: Text('课程名称')),
-//                      DataColumn(label: Text('开课时间')),
-                          DataColumn(
-                              label: Text(
-                            '课程成绩',
-                            textAlign: TextAlign.center,
-                          )),
-                          DataColumn(
-                            label: Text(
-                              '课程学分',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-//                      DataColumn(label: Text('考试性质')),
-//                      DataColumn(label: Text('课程性质')),
-                        ],
-                        rows: rows,
-                      ),
-                    )),
-              );
-            } else {
-              return Positioned(
+        gradeList == null
+            ? Positioned(
                 top: MediaQuery.of(context).size.width * 146 / 344 + 50,
                 child: Container(
                     width: MediaQuery.of(context).size.width,
@@ -187,18 +160,24 @@ class _QueryGradePageState extends State<QueryGradePage> {
                         (MediaQuery.of(context).size.width * 146 / 344 + 165),
                     child: Column(
                       children: <Widget>[
-                        Image.asset('assets/images/data_loading.png', width: 150,),
+                        Image.asset(
+                          'assets/images/data_loading.png',
+                          width: 150,
+                        ),
                         Container(
                           margin: EdgeInsets.only(top: 30.0),
-                          child: Text('数据加载中...', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.blueAccent, fontSize: 18.0),),
+                          child: Text(
+                            '数据加载中...',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blueAccent,
+                                fontSize: 18.0),
+                          ),
                         )
                       ],
-                    )
-                ),
-              );
-            }
-          },
-        )
+                    )),
+              )
+            : _buildTable()
       ],
     );
   }
@@ -263,5 +242,76 @@ class _QueryGradePageState extends State<QueryGradePage> {
                 ],
               ));
         });
+  }
+
+  _buildTable() {
+    List<DataRow> rows = new List<DataRow>();
+    for (int i = 0; i < gradeList.length; i++) {
+      var row = DataRow(cells: [
+        DataCell(Container(
+          margin: EdgeInsets.only(left: 10.0),
+          width: 60,
+          child: Text(gradeList[i].courseName.length < 15
+              ? gradeList[i].courseName
+              : gradeList[i].courseName.substring(0, 14)),
+        )),
+//                  DataCell(Text(items[i].date)),
+        DataCell(Container(
+          width: 20,
+          child: gradeList[i].score >= 60 ? Text(gradeList[i].score.toString()) : Text(gradeList[i].score.toString(), style: TextStyle(color: Colors.red),),
+        )),
+        DataCell(Text(gradeList[i].credit.toString())),
+        DataCell(Text(gradeList[i].testProperty)),
+        DataCell(Container(
+          width: 60,
+          child: Text(gradeList[i].courseProperty),
+        )),
+      ], onSelectChanged: (selected) {
+        print('11');
+        setState(() {
+          gradeList[i].selected = selected;
+        });
+      },
+          selected: gradeList[i].selected ?? false);
+      rows.add(row);
+    }
+    return Positioned(
+      top: MediaQuery.of(context).size.width * 146 / 344 + 50,
+      child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.only(left: 10.0),
+          height: MediaQuery.of(context).size.height -
+              (MediaQuery.of(context).size.width * 146 / 344 + 165),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: DataTable(
+              horizontalMargin: 0.0,
+              columnSpacing: 0.0,
+              columns: [
+                DataColumn(
+                  label: Container(
+                    margin: EdgeInsets.only(left: 10),
+                    child: Text('课程名称'),
+                  ),
+                ),
+//                      DataColumn(label: Text('开课时间')),
+                DataColumn(
+                    label: Text(
+                      '成绩',
+                      textAlign: TextAlign.center,
+                    )),
+                DataColumn(
+                  label: Text(
+                    '学分',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                DataColumn(label: Text('考试性质')),
+                DataColumn(label: Text('课程性质')),
+              ],
+              rows: rows,
+            ),
+          )),
+    );
   }
 }

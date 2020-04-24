@@ -46,7 +46,7 @@ parseGradeTable(Document document) {
     var tds = trs[i].querySelectorAll('td');
     var date = tds[1].text;
     var courseName = tds[3].text;
-    var score = double.parse(tds[5].text);
+    var score = int.parse(tds[5].text);
     var credit = double.parse(tds[7].text);
     var testProperty = tds[12].text;
     var courseProperty = tds[14].text;

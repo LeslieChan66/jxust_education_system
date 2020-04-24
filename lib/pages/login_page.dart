@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:jxust_education_system/configs/config.dart';
-import 'package:jxust_education_system/states/profile_change_notifier.dart';
-import 'package:jxust_education_system/widgets/login_form.dart';
+import 'package:jxust_education_system/common/global.dart';
+import 'package:jxust_education_system/widgets/password_textfield.dart';
 import 'package:jxust_education_system/widgets/show_loading.dart';
-import 'package:provider/provider.dart';
+import 'package:jxust_education_system/widgets/username_textfield.dart';
 import '../services/api.dart';
 import 'home_page.dart';
 
@@ -17,21 +17,22 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _username;
-  String _password;
+  final TextEditingController _unameController = new TextEditingController();
+  final TextEditingController _pwdController = new TextEditingController();
   final TextEditingController _verifiedController = new TextEditingController();
-  bool passwordVisible = false;
-  bool rememberPassword = true;
   GlobalKey _formKey = new GlobalKey<FormState>();
   List<int> imageBytes = new List<int>();
   Image verificationCodeImage;
-  LoginForm _loginForm;
+  String _username = Global.profile.username;
+  String _password = Global.profile.password;
+  bool rememberPassword = true;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print('login page init');
-    _loginForm = LoginForm();
+    _unameController.text = _username;
+    _pwdController.text = _password;
     _buildCodeImage().then((res) {
       setState(() {
         imageBytes = res.data;
@@ -41,56 +42,54 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('login page build');
+    print('11');
     return Scaffold(
-//      resizeToAvoidBottomPadding: false,
-      body: SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                  'assets/images/login_bg5.jpg',
-                ),
-                fit: BoxFit.cover,
-              )),
-          child: Column(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 100.0),
-                height: 140,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: ClipOval(
-                        child: Image.asset('assets/images/logo.jpg'),
-                      ),
-                    ),
-                    Container(
-                      child: Text(
-                        '江西理工大学教务系统',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
+      resizeToAvoidBottomPadding: false,
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                'assets/images/login_bg5.jpg',
               ),
-              Container(
-                  height: 300,
-                  margin: EdgeInsets.only(top: 30.0),
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: _loginForm),
-            ],
-          ),
+              fit: BoxFit.cover,
+            )),
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 100.0),
+              height: 140,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  SizedBox(
+                    width: 80,
+                    height: 80,
+                    child: ClipOval(
+                      child: Image.asset('assets/images/logo.jpg'),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      '江西理工大学教务系统',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+                height: 300,
+                margin: EdgeInsets.only(top: 30.0),
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: _buildLoginForm()),
+          ],
         ),
-      )
+      ),
     );
   }
 
@@ -103,63 +102,9 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               // 用户名
-              TextFormField(
-                keyboardType: TextInputType.number,
-                controller: TextEditingController.fromValue(TextEditingValue(text: Provider.of<UserModel>(context).username)),
-                onChanged: (value) {
-                  _password = value;
-                },
-                style: TextStyle(color: Color(0xFFAFB7BA)),
-                decoration: InputDecoration(
-                    hintText: '请输入用户名',
-                    hintStyle: TextStyle(color: Color(0xFFAFB7BA)),
-                    contentPadding: EdgeInsets.all(10.0),
-                    prefixIcon: Icon(
-                      Icons.person,
-                      color: Color(0xFFAFB7BA),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFAFB7BA)),
-                        borderRadius: BorderRadius.circular(15.0)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    )),
-              ),
+              UsernameTextField(_unameController),
               // 密码
-              TextFormField(
-                keyboardType: TextInputType.visiblePassword,
-                controller: TextEditingController.fromValue(TextEditingValue(text: Provider.of<UserModel>(context).password)),
-                onChanged: (value) {
-                  _password = value;
-                },
-                style: TextStyle(color: Color(0xFFAFB7BA)),
-                decoration: InputDecoration(
-                    hintText: '请输入密码',
-                    hintStyle: TextStyle(color: Color(0xFFAFB7BA)),
-                    contentPadding: EdgeInsets.all(10.0),
-                    prefixIcon: Icon(
-                      Icons.lock_outline,
-                      color: Color(0xFFAFB7BA),
-                    ),
-                    suffixIcon: GestureDetector(
-                      child: !passwordVisible
-                          ? Icon(Icons.visibility, color: Color(0xFFAFB7BA))
-                          : Icon(Icons.visibility_off,
-                              color: Color(0xFFAFB7BA)),
-                      onTap: () {
-                        setState(() {
-                          passwordVisible = !passwordVisible;
-                        });
-                      },
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFAFB7BA)),
-                        borderRadius: BorderRadius.circular(15.0)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    )),
-                obscureText: !passwordVisible,
-              ),
+              PasswordTextField(_pwdController),
               // 验证码
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -201,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                   )
                 ],
               ),
+              // 记住密码
               Row(
                 children: [
                   Checkbox(
@@ -237,23 +183,23 @@ class _LoginPageState extends State<LoginPage> {
                         showLoading(context, "登录中");
                         try {
                           var userInfo = await HttpUtils.login(
-                              _username,
-                              _password,
+                              _unameController.text,
+                              _pwdController.text,
                               _verifiedController.text);
                           var table = await HttpUtils.getCourseTable();
                           if (rememberPassword) {
-                            Provider.of<UserModel>(context, listen: false)
-                                .username = _username;
-                            Provider.of<UserModel>(context, listen: false)
-                                .password = _password;
+                            Global.setUserNameAndPwd(_unameController.text, _pwdController.text);
                           }
                           Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(builder: (context) {
-                            return HomePage(userInfo, table);
-                          }), (route) => false);
+                                return HomePage(userInfo, table);
+                              }), (route) => false);
                         } catch (e) {
                           Navigator.of(context).pop();
-
+                          var res = await _buildCodeImage();
+                          setState(() {
+                            imageBytes = res.data;
+                          });
                           Flushbar(
                             margin: EdgeInsets.all(8),
                             borderRadius: 8,
@@ -280,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _buildCodeImage() async {
     Response<List<int>> rs =
-        await HttpUtils.getCodeImage('/verifycode.servlet'); //设置接收类型为byte
+    await HttpUtils.getCodeImage('/verifycode.servlet'); //设置接收类型为byte
     return rs;
   }
 }

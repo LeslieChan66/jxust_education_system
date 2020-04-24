@@ -8,6 +8,7 @@ import 'package:jxust_education_system/utils/parse_html.dart';
 import 'package:jxust_education_system/widgets/course_table.dart';
 import 'package:jxust_education_system/widgets/drawer.dart';
 import 'package:jxust_education_system/widgets/show_loading.dart';
+import 'package:toast/toast.dart';
 
 class HomePage extends StatefulWidget {
   final String userInfoData;
@@ -42,7 +43,10 @@ class _HomePageState extends State<HomePage> {
         onTap: () async {
           List list = await _showDatePicker(context);
           if (list != null) {
+            showLoading(context, '加载中');
             var res = await HttpUtils.getCourseTable(list: list);
+            Navigator.pop(context);
+            print(res);
             if (res == 500) {
               showDialog(
                   context: context,
@@ -85,7 +89,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   });
-            } else {
+            }
+            else if(res == 504) {
+              Toast.show('请求超时', context);
+            }
+            else {
               setState(() {
                 weekNo = Configs.weekList[list[1]];
                 courseTableDoc = parse(res);

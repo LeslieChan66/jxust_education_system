@@ -45,6 +45,7 @@ class HttpUtils {
   }
 
   static Future getCodeImage(String url) async {
+    print('cookie reset');
     Dio dio = createInstance();
     List<Cookie> cookies = [];
     cookieJar.saveFromResponse(Uri.parse(API_PREFIX), cookies);
@@ -93,25 +94,30 @@ class HttpUtils {
   
   static Future getCourseTable({list}) async {
     Dio dio = createInstance();
-    Response res;
-    if (list == null) {
-      res = await dio.get('/jsxsd/xskb/xskb_list.do');
-    } else {
-      print(Configs.weekList[list[1]]);
-      print(Configs.semesterList[list[0]]);
-      Map data = {
-        'zc': list[1],
-        'xnxq01id': Configs.semesterList[list[0]],
-        'sfFD': 1
-      };
-      dio.options.contentType="application/x-www-form-urlencoded";
-      res = await dio.post('/jsxsd/xskb/xskb_list.do', data: data);
-      print(res.headers);
-    }
-    if (res.statusCode != 200) {
-      return 500;
-    } else if (res.headers['set-cookie'] != null) {
-      return 500;
+    Response res = Response();
+    try {
+      if (list == null) {
+        res = await dio.get('/jsxsd/xskb/xskb_list.do');
+      } else {
+        print(Configs.weekList[list[1]]);
+        print(Configs.semesterList[list[0]]);
+        Map data = {
+          'zc': list[1],
+          'xnxq01id': Configs.semesterList[list[0]],
+          'sfFD': 1
+        };
+        dio.options.contentType="application/x-www-form-urlencoded";
+        res = await dio.post('/jsxsd/xskb/xskb_list.do', data: data);
+        print(res.headers);
+        if (res.headers['set-cookie'] != null) {
+          return 500;
+        }
+      }
+    } on DioError catch(e) {
+      print(e);
+      if (e.type == DioErrorType.CONNECT_TIMEOUT) {
+        return 504;
+      }
     }
     return res.data;
   }
@@ -122,12 +128,14 @@ class HttpUtils {
     dio.options.contentType="application/x-www-form-urlencoded";
     try {
       res = await dio.post('/jsxsd/kscj/cjcx_list', data: map);
-    } catch (e) {
+      if (res.headers['set-cookie'] != null) {
+        return 500;
+      }
+    } on DioError catch (e) {
       print(e);
-      return 500;
-    }
-    if (res.statusCode != 200) {
-      return 500;
+      if (e.type == DioErrorType.CONNECT_TIMEOUT) {
+        return 504;
+      }
     }
     List<Grade> gradeList =  parseGradeTable(parse(res.data));
     return gradeList;

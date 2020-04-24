@@ -7,8 +7,8 @@ class Profile {
   String password;
 
   Profile.fromJson(Map<String, dynamic> json){
-    this.username = json['dateVisible'] ?? '';
-    this.password = json['is_vip'] ?? '';
+    this.username = json['username'] ?? '';
+    this.password = json['password'] ?? '';
   }
 
   Map<String, dynamic> toJson() =>

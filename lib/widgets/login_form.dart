@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:jxust_education_system/common/global.dart';
 import 'package:jxust_education_system/pages/home_page.dart';
 import 'package:jxust_education_system/services/api.dart';
 import 'package:jxust_education_system/states/profile_change_notifier.dart';
@@ -16,12 +17,13 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  String _username;
-  String _password;
+  String _username = Global.profile.username;
+  String _password = Global.profile.password;
   bool passwordVisible = false;
   bool rememberPassword = true;
   final TextEditingController _verifiedController = new TextEditingController();
   List<int> imageBytes = new List<int>();
+
 
   @override
   void initState() {
@@ -45,7 +47,7 @@ class _LoginFormState extends State<LoginForm> {
               // 用户名
               TextFormField(
                 keyboardType: TextInputType.number,
-                controller: TextEditingController.fromValue(TextEditingValue(text: Provider.of<UserModel>(context).username)),
+                controller: TextEditingController.fromValue(TextEditingValue(text: _username)),
                 onChanged: (value) {
                   _username = value;
                 },
@@ -68,7 +70,7 @@ class _LoginFormState extends State<LoginForm> {
               // 密码
               TextFormField(
                 keyboardType: TextInputType.visiblePassword,
-                controller: TextEditingController.fromValue(TextEditingValue(text: Provider.of<UserModel>(context).password)),
+                controller: TextEditingController.fromValue(TextEditingValue(text: _password)),
                 onChanged: (value) {
                   _password = value;
                 },
@@ -192,8 +194,8 @@ class _LoginFormState extends State<LoginForm> {
                                 return HomePage(userInfo, table);
                               }), (route) => false);
                         } catch (e) {
+                          print(e);
                           Navigator.of(context).pop();
-
                           Flushbar(
                             margin: EdgeInsets.all(8),
                             borderRadius: 8,
