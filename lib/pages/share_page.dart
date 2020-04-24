@@ -34,7 +34,7 @@ class SharePage extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(5.0))),
             child: Center(
               child: QrImage(
-                data: 'https://chan66.lanzous.com/ibuk7ve',
+                data: 'https://chan66.lanzous.com/b01bcg1gd',
                 size: 200,
               ),
             ),
