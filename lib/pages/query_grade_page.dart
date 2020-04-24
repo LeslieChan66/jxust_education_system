@@ -151,7 +151,7 @@ class _QueryGradePageState extends State<QueryGradePage> {
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.only(left: 20.0),
                     height: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).size.width * 146 / 344 + 50),
+                        (MediaQuery.of(context).size.width * 146 / 344 + 165),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: DataTable(
@@ -184,7 +184,7 @@ class _QueryGradePageState extends State<QueryGradePage> {
                 child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).size.width * 146 / 344 + 50),
+                        (MediaQuery.of(context).size.width * 146 / 344 + 165),
                     child: Column(
                       children: <Widget>[
                         Image.asset('assets/images/data_loading.png', width: 150,),

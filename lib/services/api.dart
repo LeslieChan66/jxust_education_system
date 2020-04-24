@@ -106,8 +106,11 @@ class HttpUtils {
       };
       dio.options.contentType="application/x-www-form-urlencoded";
       res = await dio.post('/jsxsd/xskb/xskb_list.do', data: data);
+      print(res.headers);
     }
     if (res.statusCode != 200) {
+      return 500;
+    } else if (res.headers['set-cookie'] != null) {
       return 500;
     }
     return res.data;
@@ -121,6 +124,9 @@ class HttpUtils {
       res = await dio.post('/jsxsd/kscj/cjcx_list', data: map);
     } catch (e) {
       print(e);
+      return 500;
+    }
+    if (res.statusCode != 200) {
       return 500;
     }
     List<Grade> gradeList =  parseGradeTable(parse(res.data));

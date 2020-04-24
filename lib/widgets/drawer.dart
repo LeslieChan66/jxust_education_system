@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/configs/config.dart';
@@ -63,12 +64,60 @@ class _MyDrawerState extends State<MyDrawer> {
                 Expanded(
                   child: ListView(
                     children: <Widget>[
-                      ListTile(leading: Icon(Icons.score), title: Text('成绩查询'), onTap: () {
+                      ListTile(leading: Icon(Icons.insert_chart), title: Text('成绩查询'), onTap: () {
                         _gotoGradePage();
                       },),
-                      ListTile(leading: Icon(Icons.developer_board), title: Text('培养方案')),
-                      ListTile(leading: Icon(Icons.library_books), title: Text('等级考试')),
-                      ListTile(leading: Icon(Icons.comment), title: Text('一键评教')),
+                      ListTile(leading: Icon(Icons.school), title: Text('培养方案'), onTap: () {
+                        Flushbar(
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message: "功能开发中。。。",
+                          flushbarPosition: FlushbarPosition.TOP,
+                          icon: Icon(
+                            Icons.info,
+                            size: 28.0,
+                            color: Colors.blue,
+                          ),
+                          duration: Duration(seconds: 3),
+                          leftBarIndicatorColor: Colors.blue,
+                        )..show(context);
+                      },),
+                      ListTile(leading: Icon(Icons.library_books), title: Text('等级考试'),onTap: () {
+                        Flushbar(
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message: "功能开发中。。。",
+                          flushbarPosition: FlushbarPosition.TOP,
+                          icon: Icon(
+                            Icons.info,
+                            size: 28.0,
+                            color: Colors.blue,
+                          ),
+                          duration: Duration(seconds: 3),
+                          leftBarIndicatorColor: Colors.blue,
+                        )..show(context);
+                      },),
+                      ListTile(leading: Icon(Icons.comment), title: Text('一键评教'), onTap: () {
+                        Flushbar(
+                          margin: EdgeInsets.all(8),
+                          borderRadius: 8,
+                          message: "功能开发中。。。",
+                          flushbarPosition: FlushbarPosition.TOP,
+                          icon: Icon(
+                            Icons.info,
+                            size: 28.0,
+                            color: Colors.blue,
+                          ),
+                          duration: Duration(seconds: 3),
+                          leftBarIndicatorColor: Colors.blue,
+                        )..show(context);
+                      },),
+                      ListTile(leading: Icon(Icons.info), title: Text('关于'), onTap: () {
+                        _gotoAboutUsPage();
+                      },),
+                      ListTile(leading: Icon(Icons.share), title: Text('分享'), onTap: () {
+                        _gotoSharePage();
+                      },),
                       ListTile(leading: Icon(Icons.exit_to_app), title: Text('退出登录'), onTap: () {
                         _logout();
                       },)
@@ -89,6 +138,14 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void _gotoGradePage() {
     Navigator.pushNamed(context, 'query_grade_page');
+  }
+
+  void _gotoSharePage() {
+    Navigator.pushNamed(context, 'share_page');
+  }
+
+  void _gotoAboutUsPage() {
+    Navigator.pushNamed(context, 'about_us_page');
   }
 }
 
