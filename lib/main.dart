@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jxust_education_system/pages/about_app_page.dart';
 import 'package:jxust_education_system/pages/about_us_page.dart';
-import 'package:jxust_education_system/pages/home_page.dart';
 import 'package:jxust_education_system/pages/login_page.dart';
 import 'package:jxust_education_system/pages/query_grade_page.dart';
 import 'package:jxust_education_system/pages/share_page.dart';
 import 'package:jxust_education_system/states/profile_change_notifier.dart';
 import 'package:provider/provider.dart';
-
 import 'common/global.dart';
-import 'configs/config.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

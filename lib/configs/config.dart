@@ -47,4 +47,9 @@ class Configs {
     '第20周',
     '第21周',
   ];
+
+  static const String admob_app_id = 'ca-app-pub-7371385586833637~8215071484';
+  static const String admob_app_unit_id = 'ca-app-pub-7371385586833637/1141029699';
+//  static String admob_app_test_id = 'ca-app-pub-3940256099942544/1033173712';
+  static const String testDevice = '23CDAE173EA2F353652B5130F89EE2AA';
 }
