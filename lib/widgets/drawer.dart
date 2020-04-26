@@ -15,24 +15,20 @@ class MyDrawer extends StatefulWidget {
 
 class _MyDrawerState extends State<MyDrawer> {
   static const MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-    testDevices:
-        Configs.testDevice != null ? <String>[Configs.testDevice] : null,
+//    testDevices: ['23CDAE173EA2F353652B5130F89EE2AA'],
+    keywords: <String>['student', 'university'],
+//    contentUrl: 'http://foo.com/bar.html',
+//    childDirected: true,
+//    nonPersonalizedAds: true,
   );
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    RewardedVideoAd.instance.load(adUnitId: Configs.admob_app_unit_id, targetingInfo: targetingInfo);
-    RewardedVideoAd.instance.listener =
-        (RewardedVideoAdEvent event, {String rewardType, int rewardAmount}) {
-      print("RewardedVideoAd event $event");
-      if (event == RewardedVideoAdEvent.closed) {
-        RewardedVideoAd.instance.load(adUnitId: Configs.admob_app_unit_id, targetingInfo: targetingInfo);
-        Future.delayed(Duration(seconds: 1), () {
-          Toast.show('感谢你的支持', context);
-        });
-      }
-    };
+    RewardedVideoAd.instance.load(
+        adUnitId: Configs.admob_rewarded_unit_id,
+        targetingInfo: targetingInfo
+    );
   }
 
   @override
@@ -170,7 +166,7 @@ class _MyDrawerState extends State<MyDrawer> {
                     leading: Icon(Icons.videocam),
                     title: Text('看个广告'),
                     onTap: () {
-                        RewardedVideoAd.instance.show();
+                      RewardedVideoAd.instance.show();
                     },
                   ),
                   ListTile(

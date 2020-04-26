@@ -20,7 +20,6 @@ class Global {
     // 首次安装
     profile.username = profile.username ?? '';
     profile.password = profile.password ?? '';
-    FirebaseAdMob.instance.initialize(appId: Configs.admob_app_id);
   }
 
   static setUserNameAndPwd(String username, String password) {

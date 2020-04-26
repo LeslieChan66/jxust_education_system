@@ -1,10 +1,55 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
+import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/model/grade.dart';
 
-class AnalysisPage extends StatelessWidget {
+class AnalysisPage extends StatefulWidget {
+  final List<Grade> gradeList;
+  AnalysisPage({Key key, this.gradeList}) : super(key: key);
+  @override
+  _AnalysisPageState createState() => _AnalysisPageState(gradeList: gradeList);
+}
+
+class _AnalysisPageState extends State<AnalysisPage> {
   final List<Grade> gradeList;
 
-  AnalysisPage({Key key, this.gradeList}) : super(key: key);
+  BannerAd _bannerAd;
+  _AnalysisPageState({Key key, this.gradeList});
+
+  BannerAd createBannerAd() {
+    return BannerAd(
+      adUnitId: Configs.admob_banner_unit_id,
+      targetingInfo: targetingInfo,
+      size: AdSize.fullBanner,
+      listener: (MobileAdEvent event) {
+        print("BannerAd event $event");
+      },
+    );
+  }
+
+  static const MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+//    testDevices: ['23CDAE173EA2F353652B5130F89EE2AA'],
+    keywords: <String>['student', 'university'],
+//    contentUrl: 'http://foo.com/bar.html',
+//    childDirected: true,
+//    nonPersonalizedAds: true,
+  );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _bannerAd ??= createBannerAd();
+    _bannerAd
+      ..load()
+      ..show(horizontalCenterOffset: 0, anchorOffset: 0);
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _bannerAd.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     // 平均分数
@@ -101,3 +146,4 @@ class AnalysisPage extends StatelessWidget {
     );
   }
 }
+
