@@ -1,13 +1,19 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:html/dom.dart' as Dom;
 import 'package:html/parser.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/services/api.dart';
 import 'package:jxust_education_system/utils/parse_html.dart';
 import 'package:jxust_education_system/widgets/course_table.dart';
 import 'package:jxust_education_system/widgets/drawer.dart';
 import 'package:jxust_education_system/widgets/show_loading.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:toast/toast.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,6 +28,8 @@ class _HomePageState extends State<HomePage> {
   Dom.Document userInfoDoc;
   Dom.Document courseTableDoc;
   String weekNo;
+  GlobalKey _couseTableKey = new GlobalKey();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -31,103 +39,7 @@ class _HomePageState extends State<HomePage> {
     weekNo = parseWeekNo(userInfoDoc);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    AppBar _appBar = new AppBar(
-      brightness: Brightness.light,
-      title: GestureDetector(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[Icon(Icons.calendar_today), Text(weekNo)],
-        ),
-        onTap: () async {
-          List list = await _showDatePicker(context);
-          if (list != null) {
-            showLoading(context, '加载中');
-            var res = await HttpUtils.getCourseTable(list: list);
-            Navigator.pop(context);
-            print(res);
-            if (res == 500) {
-              showDialog(
-                  context: context,
-                  useRootNavigator: false,
-                  barrierDismissible: false,
-                  builder: (context) {
-                    return AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text(
-                            '拉取数据失败',
-                            style: TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.w600),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(vertical: 20.0),
-                            child: Text(
-                              '登陆凭证已失效，请重新登录',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: FlatButton(
-                                  color: Color(0xFF009A9A),
-                                  textColor: Colors.white,
-                                  child: Text('返回登录界面'),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pushNamedAndRemoveUntil(
-                                            'login_page', (route) => false);
-                                  },
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  });
-            }
-            else if(res == 504) {
-              Toast.show('请求超时', context);
-            }
-            else {
-              setState(() {
-                weekNo = Configs.weekList[list[1]];
-                courseTableDoc = parse(res);
-              });
-            }
-          }
-        },
-      ),
-      centerTitle: true,
-      actions: <Widget>[
-        new PopupMenuButton(
-          itemBuilder: (context) {
-            return <PopupMenuEntry<String>>[
-              PopupMenuItem(
-                child: Text('保存课表'),
-              ),
-              PopupMenuItem(
-                child: Text('换个颜色'),
-              )
-            ];
-          },
-        ),
-      ],
-    );
-    return Scaffold(
-      appBar: _appBar,
-      drawer: MyDrawer(parseUserInfo(userInfoDoc)),
-      body: Container(
-//        decoration: BoxDecoration(image: DecorationImage(image: AssetImage('assets/images/background.png'), fit: BoxFit.cover)),
-        child: CourseTable(_appBar.preferredSize.height, courseTableDoc),
-      ),
-    );
-  }
-
+  // 日期选择弹窗
   _showDatePicker(BuildContext context) {
     int semesterIndex = 0;
     int weekIndex = 0;
@@ -212,5 +124,139 @@ class _HomePageState extends State<HomePage> {
                 ],
               ));
         });
+  }
+
+  // 获取屏幕截图
+  Future<Uint8List> getScreenImage() async {
+    RenderRepaintBoundary boundary =
+    _couseTableKey.currentContext.findRenderObject();
+    var image = await boundary.toImage();
+    ByteData byteData = await image.toByteData(format: ImageByteFormat.png);
+    Uint8List pngBytes = byteData.buffer.asUint8List();
+    return pngBytes;
+  }
+
+  // 保存图片
+  Future<String> _saveImage(Uint8List imageBytes) async {
+    final result = await ImageGallerySaver.saveImage(imageBytes);
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppBar _appBar = new AppBar(
+      brightness: Brightness.light,
+      title: GestureDetector(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[Icon(Icons.calendar_today), Text(weekNo)],
+        ),
+        onTap: () async {
+          List list = await _showDatePicker(context);
+          if (list != null) {
+            showLoading(context, '加载中');
+            var res = await HttpUtils.getCourseTable(list: list);
+            Navigator.pop(context);
+            print(res);
+            if (res == 500) {
+              showDialog(
+                  context: context,
+                  useRootNavigator: false,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            '拉取数据失败',
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.w600),
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 20.0),
+                            child: Text(
+                              '登陆凭证已失效，请重新登录',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: FlatButton(
+                                  color: Color(0xFF009A9A),
+                                  textColor: Colors.white,
+                                  child: Text('返回登录界面'),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pushNamedAndRemoveUntil(
+                                            'login_page', (route) => false);
+                                  },
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  });
+            }
+            else if(res == 504) {
+              Toast.show('请求超时', context);
+            }
+            else {
+              setState(() {
+                weekNo = Configs.weekList[list[1]];
+                courseTableDoc = parse(res);
+              });
+            }
+          }
+        },
+      ),
+      centerTitle: true,
+      actions: <Widget>[
+        new PopupMenuButton(
+          itemBuilder: (context) {
+            return <PopupMenuEntry<String>>[
+              PopupMenuItem(
+                value: '0',
+                child: Text('保存课表'),
+              ),
+              PopupMenuItem(
+                value: '1',
+                child: Text('换个颜色'),
+              )
+            ];
+          },
+          onSelected: (String value) async {
+            if (value == '0') {
+              if (await Permission.storage.request().isDenied) {
+                Toast.show('Permission denied', context);
+              }
+              Uint8List pngBytes = await getScreenImage();
+              String path = await _saveImage(pngBytes);
+              if (path.length > 2) {
+                Toast.show('保存成功', context);
+              }
+            } else if (value == '1') {
+              setState(() {
+
+              });
+            }
+          },
+        ),
+      ],
+    );
+    return Scaffold(
+      appBar: _appBar,
+      drawer: MyDrawer(parseUserInfo(userInfoDoc)),
+      body: RepaintBoundary(
+        key: _couseTableKey,
+        child: Container(
+          color: Colors.white,
+          child: CourseTable(_appBar.preferredSize.height, courseTableDoc),
+        )
+      ),
+    );
   }
 }

@@ -1,7 +1,4 @@
 import 'dart:convert';
-
-import 'package:firebase_admob/firebase_admob.dart';
-import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/model/profile.dart';
 import 'package:jxust_education_system/utils/localstorage.dart';
 

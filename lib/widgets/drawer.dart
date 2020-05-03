@@ -1,10 +1,7 @@
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/services/api.dart';
-import 'package:toast/toast.dart';
 
 class MyDrawer extends StatefulWidget {
   MyDrawer(this.userInfo);
@@ -14,21 +11,10 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
-  static const MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-//    testDevices: ['23CDAE173EA2F353652B5130F89EE2AA'],
-    keywords: <String>['student', 'university'],
-//    contentUrl: 'http://foo.com/bar.html',
-//    childDirected: true,
-//    nonPersonalizedAds: true,
-  );
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    RewardedVideoAd.instance.load(
-        adUnitId: Configs.admob_rewarded_unit_id,
-        targetingInfo: targetingInfo
-    );
   }
 
   @override
@@ -107,7 +93,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   ),
                   ListTile(
                     leading: Icon(Icons.school),
-                    title: Text('培养方案'),
+                    title: Text('考试查询'),
                     onTap: () {
                       Flushbar(
                         margin: EdgeInsets.all(8),
@@ -160,13 +146,6 @@ class _MyDrawerState extends State<MyDrawer> {
                         duration: Duration(seconds: 2),
                         leftBarIndicatorColor: Colors.blue,
                       )..show(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.videocam),
-                    title: Text('看个广告'),
-                    onTap: () {
-                      RewardedVideoAd.instance.show();
                     },
                   ),
                   ListTile(

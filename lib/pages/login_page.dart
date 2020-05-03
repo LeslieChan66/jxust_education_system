@@ -1,12 +1,9 @@
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:jxust_education_system/common/global.dart';
-import 'package:jxust_education_system/configs/config.dart';
 import 'package:jxust_education_system/widgets/password_textfield.dart';
 import 'package:jxust_education_system/widgets/show_loading.dart';
 import 'package:jxust_education_system/widgets/username_textfield.dart';
@@ -32,7 +29,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    FirebaseAdMob.instance.initialize(appId: Configs.admob_app_id);
     print('login page init');
     _unameController.text = _username;
     _pwdController.text = _password;
